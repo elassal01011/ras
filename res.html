@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SULA Restaurant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f8f8f8;
+        }
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        button {
+            display: block;
+            margin: 10px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input {
+            display: block;
+            margin: 10px auto;
+            padding: 10px;
+            font-size: 16px;
+            width: 80%;
+            box-sizing: border-box;
+        }
+        .admin-data {
+            text-align: left;
+        }
+        .admin-data p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="home" class="container" style="display: none;">
+        <h1>Welcome to SULA Restaurant</h1>
+        <button onclick="navigateTo('signup')">Sign Up</button>
+        <button onclick="navigateTo('login')">Login</button>
+        <button onclick="navigateTo('admin-login')">Admin Login</button>
+    </div>
+
+    <div id="signup" class="container" style="display: none;">
+        <h1>Sign Up</h1>
+        <form id="signup-form">
+            <input type="text" id="signup-name" placeholder="Name" required>
+            <input type="number" id="signup-age" placeholder="Age" required>
+            <input type="text" id="signup-username" placeholder="Username" required>
+            <input type="password" id="signup-password" placeholder="Password" required>
+            <button type="submit">Sign Up</button>
+        </form>
+    </div>
+
+    <div id="login" class="container" style="display: none;">
+        <h1>Login</h1>
+        <form id="login-form">
+            <input type="text" id="login-username" placeholder="Username" required>
+            <input type="password" id="login-password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <div id="home-logged-in" class="container" style="display: none;">
+        <h1>Select Your Meal</h1>
+        <button onclick="navigateTo('order', 'fish')">Fish</button>
+        <button onclick="navigateTo('order', 'meat')">Meat</button>
+        <button onclick="navigateTo('order', 'chicken')">Chicken</button>
+    </div>
+
+    <div id="order" class="container" style="display: none;">
+        <h1>Order Your Meal</h1>
+        <form id="order-form">
+            <input type="tel" id="order-phone" placeholder="Phone Number" required>
+            <input type="text" id="order-address" placeholder="Address" required>
+            <button type="submit">Order</button>
+        </form>
+    </div>
+
+    <div id="admin-login" class="container" style="display: none;">
+        <h1>Admin Login</h1>
+        <form id="admin-login-form">
+            <input type="text" id="admin-username" placeholder="Username" required>
+            <input type="password" id="admin-password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <div id="admin-data" class="container" style="display: none;">
+        <h1>User and Order Data</h1>
+        <div class="admin-data" id="user-data">
+            <!-- User data will be displayed here -->
+        </div>
+        <button onclick="navigateTo('home')">Back to Home</button>
+    </div>
+
+    <script>
+        const users = [];
+        const orders = [];
+
+        function navigateTo(page, meal = null) {
+            document.querySelectorAll('.container').forEach(container => container.style.display = 'none');
+            document.getElementById(page).style.display = 'block';
+
+            if (page === 'order' && meal) {
+                document.getElementById('order').dataset.meal = meal;
+            }
+        }
+
+        document.getElementById('signup-form')?.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const newUser = {
+                name: document.getElementById('signup-name').value,
+                age: document.getElementById('signup-age').value,
+                username: document.getElementById('signup-username').value,
+                password: document.getElementById('signup-password').value
+            };
+            users.push(newUser);
+            navigateTo('login');
+        });
+
+        document.getElementById('login-form')?.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            const user = users.find(u => u.username === username && u.password === password);
+            if (user) {
+                navigateTo('home-logged-in');
+            } else {
+                alert('Incorrect username or password.');
+            }
+        });
+
+        document.getElementById('order-form')?.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const meal = document.getElementById('order').dataset.meal;
+            const phone = document.getElementById('order-phone').value;
+            const address = document.getElementById('order-address').value;
+            const order = { meal, phone, address };
+            orders.push(order);
+            alert(`Order placed successfully!\nMeal: ${meal}\nPhone: ${phone}\nAddress: ${address}`);
+            navigateTo('home');
+        });
+
+        document.getElementById('admin-login-form')?.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+            if (username === 'admin' && password === 'admin') {
+                displayAdminData();
+                navigateTo('admin-data');
+            } else {
+                alert('Incorrect admin username or password.');
+            }
+        });
+
+        function displayAdminData() {
+            const userDataDiv = document.getElementById('user-data');
+            userDataDiv.innerHTML = '<h2>Users</h2>';
+            users.forEach((user, index) => {
+                userDataDiv.innerHTML += `<p>User ${index + 1}: ${user.name}, Age: ${user.age}, Username: ${user.username}</p>`;
+            });
+
+            userDataDiv.innerHTML += '<h2>Orders</h2>';
+            orders.forEach((order, index) => {
+                userDataDiv.innerHTML += `<p>User ${index + 1}::: <p>Order ${index + 1}: Meal: ${order.meal}, Phone: ${order.phone}, Address: ${order.address}</p>`;
+            });
+        }
+
+        // Initially show the home page
+        navigateTo('home');
+    </script>
+</body>
+</html>
